@@ -41,11 +41,24 @@ def log_interaction(
         )
 
         return {
-            "status": "success",
-            "action": "log_interaction",
-            "id": interaction.id,
-            "message": "Interaction saved successfully.",
-        }
+    "status": "success",
+    "action": "log_interaction",
+    "id": interaction.id,
+    "message": "Interaction saved successfully.",
+    "interaction": {
+        "hcpName": hcp_name,
+        "interactionType": interaction_type,
+        "date": date,
+        "time": time,
+        "attendees": attendees,
+        "topicsDiscussed": topics_discussed,
+        "materialsShared": materials_shared,
+        "samplesDistributed": samples_distributed,
+        "sentiment": sentiment,
+        "outcomes": outcomes,
+        "followUpActions": follow_up_actions,
+    }
+}
 
     finally:
         db.close()

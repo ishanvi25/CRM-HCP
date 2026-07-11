@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+
+import json
 
 from app.langgraph.graph import graph
 
@@ -16,8 +18,8 @@ class ChatRequest(BaseModel):
 
 @router.post("/")
 async def chat(request: ChatRequest):
+
     try:
-        print("STEP 1")
 
         result = graph.invoke(
             {
@@ -27,15 +29,35 @@ async def chat(request: ChatRequest):
             }
         )
 
-        print("STEP 2")
-        print(result)
+        messages = result["messages"]
 
-        return result
+        reply = ""
+        interaction = None
+
+        for message in messages:
+
+            if isinstance(message, ToolMessage):
+
+                data = json.loads(message.content)
+
+                if "interaction" in data:
+                    interaction = data["interaction"]
+
+            elif isinstance(message, AIMessage):
+
+                if message.content:
+                    reply = message.content
+
+        return {
+            "reply": reply,
+            "interaction": interaction,
+        }
 
     except Exception as e:
-     print(e)
 
-    return {
-        "status": "error",
-        "message": str(e),
-    }
+        print(e)
+
+        return {
+            "status": "error",
+            "message": str(e),
+        }
