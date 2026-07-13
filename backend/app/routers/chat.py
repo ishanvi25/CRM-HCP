@@ -33,15 +33,32 @@ async def chat(request: ChatRequest):
 
         reply = ""
         interaction = None
+        summary = None
+        suggestion = None
+        clear = False
 
         for message in messages:
 
             if isinstance(message, ToolMessage):
 
                 data = json.loads(message.content)
+                print("TOOL DATA:", data)
 
                 if "interaction" in data:
-                    interaction = data["interaction"]
+
+                    if interaction is None:
+                        interaction = {}
+
+                    interaction.update(data["interaction"])
+
+                if "summary" in data:
+                    summary = data["summary"]
+
+                if "suggestion" in data:
+                    suggestion = data["suggestion"]
+
+                if data.get("clear"):
+                    clear = True
 
             elif isinstance(message, AIMessage):
 
@@ -51,6 +68,9 @@ async def chat(request: ChatRequest):
         return {
             "reply": reply,
             "interaction": interaction,
+            "summary": summary,
+            "suggestion": suggestion,
+            "clear": clear,
         }
 
     except Exception as e:

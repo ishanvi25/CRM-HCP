@@ -41,24 +41,24 @@ def log_interaction(
         )
 
         return {
-    "status": "success",
-    "action": "log_interaction",
-    "id": interaction.id,
-    "message": "Interaction saved successfully.",
-    "interaction": {
-        "hcpName": hcp_name,
-        "interactionType": interaction_type,
-        "date": date,
-        "time": time,
-        "attendees": attendees,
-        "topicsDiscussed": topics_discussed,
-        "materialsShared": materials_shared,
-        "samplesDistributed": samples_distributed,
-        "sentiment": sentiment,
-        "outcomes": outcomes,
-        "followUpActions": follow_up_actions,
-    }
-}
+            "status": "success",
+            "action": "log_interaction",
+            "id": interaction.id,
+            "message": "Interaction saved successfully.",
+            "interaction": {
+                "hcpName": hcp_name,
+                "interactionType": interaction_type,
+                "date": date,
+                "time": time,
+                "attendees": attendees,
+                "topicsDiscussed": topics_discussed,
+                "materialsShared": materials_shared,
+                "samplesDistributed": samples_distributed,
+                "sentiment": sentiment,
+                "outcomes": outcomes,
+                "followUpActions": follow_up_actions,
+            },
+        }
 
     finally:
         db.close()
@@ -68,11 +68,32 @@ def log_interaction(
 def edit_interaction(field: str, value: str):
     """Edit one field of the current interaction."""
 
+    field_map = {
+        "hcp_name": "hcpName",
+        "interaction_type": "interactionType",
+        "date": "date",
+        "time": "time",
+        "attendees": "attendees",
+        "topics_discussed": "topicsDiscussed",
+        "materials_shared": "materialsShared",
+        "samples_distributed": "samplesDistributed",
+        "sentiment": "sentiment",
+        "outcomes": "outcomes",
+        "follow_up_actions": "followUpActions",
+    }
+
+    frontend_field = field_map.get(field)
+
+    interaction = {}
+
+    if frontend_field:
+        interaction[frontend_field] = value
+
     return {
         "status": "success",
         "action": "edit_interaction",
-        "field": field,
-        "value": value,
+        "interaction": interaction,
+        "message": f"{field} updated successfully.",
     }
 
 
@@ -82,6 +103,7 @@ def summarize_interaction(text: str):
 
     return {
         "status": "success",
+        "action": "summarize_interaction",
         "summary": text,
     }
 
@@ -92,6 +114,7 @@ def suggest_followup(topic: str):
 
     return {
         "status": "success",
+        "action": "suggest_followup",
         "suggestion": f"Follow up regarding {topic}",
     }
 
@@ -103,4 +126,5 @@ def clear_interaction():
     return {
         "status": "success",
         "action": "clear_interaction",
+        "clear": True,
     }

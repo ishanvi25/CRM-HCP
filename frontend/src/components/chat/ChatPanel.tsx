@@ -7,7 +7,10 @@ import ChatInput from "./ChatInput";
 import ChatMessage from "./ChatMessage";
 
 import { sendMessage } from "../../services/chatService";
-import { updateInteraction } from "../../redux/interactionSlice";
+import {
+  updateInteraction,
+  clearInteraction,
+} from "../../redux/interactionSlice";
 
 interface Message {
   sender: "assistant" | "user";
@@ -43,18 +46,28 @@ function ChatPanel() {
     try {
       const response = await sendMessage(message);
 
-      // Update Redux if backend returns interaction data
+      // Populate or update the form
       if (response.interaction) {
         dispatch(updateInteraction(response.interaction));
+      }
+
+      // Clear the form
+      if (response.clear) {
+        dispatch(clearInteraction());
       }
 
       let aiMessage = "Done.";
 
       if (response.reply) {
         aiMessage = response.reply;
-      } else if (response.messages && response.messages.length > 0) {
-        const last = response.messages[response.messages.length - 1];
-        aiMessage = last.content || JSON.stringify(last, null, 2);
+      }
+
+      if (response.summary) {
+        aiMessage += "\n\nSummary:\n" + response.summary;
+      }
+
+      if (response.suggestion) {
+        aiMessage += "\n\nSuggested Follow-up:\n" + response.suggestion;
       }
 
       setMessages((prev) => [
